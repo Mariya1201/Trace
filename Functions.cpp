@@ -14,27 +14,42 @@ bool Shapes_intersect(const Screen& scr, const Vec3& dir, vector<Shape*>& shapes
             col = shapes[i]->getColor();
         }
     }
-    return min_dist <= 1000; // scr.limit / (dir * ((-1) * scr.normal));
+    return min_dist <= 1000; 
 }
-
 Vec3 p_color(const Screen& scr, const Vec3& dir, vector<Shape*>& Shapes, const Light& light) {
     Vec3 point, N, col;
     if (Shapes_intersect(scr, dir, Shapes, point, N, col) == false) {
-        return Vec3(250, 218, 221);
+        return Vec3(250, 200, 241);
     }
-
+    
     double diffuse_light_intensity = 0;
     double spec_light_intensity = 0;
-    double ns = 128.0;
-    double ks = 0.5;
-    Vec3 light_dir = (light.position - point).normalize();
-    double cos = light_dir * scr.cam;
-    cout<<cos;
-    diffuse_light_intensity = light.intensity * std::max(0.0, double(light_dir * N));
-    spec_light_intensity = ks * light.intensity * pow(cos, ns);
-
-    return col * (diffuse_light_intensity+ spec_light_intensity);
+    double ns = 0.3;
+    double ks =130;
+    Vec3 L = (light.position - point).normalize();
+    Vec3 R = (N * 2.0 * (N * L) - L).normalize();
+    Vec3 C = (scr.cam - point).normalize();
+    Vec3 H =(L+C).normalize();
+    double F = N * H;
+    double F1 = R * C;
+    diffuse_light_intensity = light.intensity * std::max(0.0, double(L * N));
+    spec_light_intensity = light.intensity * (pow((max(0.0, F)), ks));
+    Vec3 qq = col * ( diffuse_light_intensity + spec_light_intensity*ns );
+    if (qq.x > 255)
+    {
+        qq.x = 255;
+    }
+    if (qq.y > 255)
+    {
+        qq.y = 255;
+    }
+    if (qq.z > 255)
+    {
+        qq.z = 255;
+    }
+    return qq;
 }
+
 
 unsigned char* createBitmapInfoHeader(int height, int width) {
     static unsigned char infoHeader[] = {
@@ -153,9 +168,9 @@ void create_img(vector<Shape*>& Shapes, Light& light, const Screen& scr) {
     int i, j;
     for (j = 0; j < height; j++) {
         for (i = 0; i < width; i++) {
-            image(i, j, 2) = pixels[i + j * width][2]; ///red
-            image(i, j, 1) = pixels[i + j * width][1]; ///green
-            image(i, j, 0) = pixels[i + j * width][0]; ///blue
+            image(i, j, 2) = pixels[i + j * width][2]; 
+            image(i, j, 1) = pixels[i + j * width][1]; 
+            image(i, j, 0) = pixels[i + j * width][0]; 
         }
     }
     generateBitmapImage(image.ptr(), height, width, FileName);

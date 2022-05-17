@@ -5,7 +5,7 @@
 class Shape {
 protected:
     string type = "sphere";
-    Vec3 color = { 225,0,0 };
+    Vec3 color = { 225,255,255 };
 
 public:
     Shape() = default;
